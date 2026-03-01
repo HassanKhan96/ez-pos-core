@@ -11,8 +11,8 @@
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts",
-    "prisma:uuidify": "tsx prisma/migrate-ids-to-uuid.ts",
+    "prisma:seed": "npm run prisma:generate && tsx prisma/seed.ts",
+    "prisma:uuidify": "npm run prisma:generate && tsx prisma/migrate-ids-to-uuid.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

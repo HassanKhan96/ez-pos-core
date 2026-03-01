@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
+import { pathToFileURL } from "node:url";
 import { app } from "electron";
 import { PrismaClient } from "../../../prisma/generated/client";
 
@@ -21,7 +22,7 @@ if (app.isPackaged && !fs.existsSync(dbPath)) {
   }
 }
 
-const datasourceUrl = `file:${dbPath}`;
+const datasourceUrl = pathToFileURL(dbPath).toString();
 
 export const prisma =
   global.__prismaClient__ ??
