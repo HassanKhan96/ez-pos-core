@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
+import { CalendarOutlined } from "@ant-design/icons";
+import { DatePicker, Space, Table, Tag, Typography } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { ScreenPanel } from "@/components/ui/ScreenPanel";
 import { formatMoney, todayISODate } from "@/lib/format";
 import { usePosStore } from "@/state/use-pos-store";
 
 export function OrderHistoryScreen() {
-  const { orders, loadOrdersForDate } = usePosStore();
+  const orders = usePosStore((state) => state.orders);
+  const loadOrdersForDate = usePosStore((state) => state.loadOrdersForDate);
+
   const [fromDate, setFromDate] = useState(todayISODate());
   const [toDate, setToDate] = useState(todayISODate());
 
@@ -13,48 +20,63 @@ export function OrderHistoryScreen() {
     void loadOrdersForDate(fromISO, toISO);
   }, [fromDate, loadOrdersForDate, toDate]);
 
-  return (
-    <section className="h-full rounded-2xl bg-white p-4 shadow-panel">
-      <div className="flex items-end justify-between gap-3">
-        <h2 className="text-lg font-bold">Order History</h2>
-        <div className="flex gap-2">
-          <DateField label="From" value={fromDate} onChange={setFromDate} />
-          <DateField label="To" value={toDate} onChange={setToDate} />
-        </div>
-      </div>
-      <div className="mt-4 overflow-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="text-left text-slate-500">
-              <th className="pb-2">Order #</th>
-              <th className="pb-2">Date</th>
-              <th className="pb-2">Subtotal</th>
-              <th className="pb-2">Discount</th>
-              <th className="pb-2">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} className="border-t border-slate-100">
-                <td className="py-2 font-semibold">{order.orderNumber}</td>
-                <td className="py-2">{new Date(order.createdAt).toLocaleString()}</td>
-                <td className="py-2">{formatMoney(order.subtotal)}</td>
-                <td className="py-2 text-red-600">- {formatMoney(order.discount)}</td>
-                <td className="py-2 font-semibold">{formatMoney(order.total)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+  const columns = useMemo<ColumnsType<(typeof orders)[number]>>(
+    () => [
+      {
+        title: "Order",
+        dataIndex: "orderNumber",
+        render: (value: number) => <Tag color="geekblue">#{value}</Tag>,
+        width: 110
+      },
+      {
+        title: "Created",
+        dataIndex: "createdAt",
+        render: (value: string) => dayjs(value).format("DD MMM YYYY, HH:mm")
+      },
+      {
+        title: "Subtotal",
+        dataIndex: "subtotal",
+        align: "right",
+        render: (value: number) => formatMoney(value)
+      },
+      {
+        title: "Discount",
+        dataIndex: "discount",
+        align: "right",
+        render: (value: number) => <Typography.Text type="danger">- {formatMoney(value)}</Typography.Text>
+      },
+      {
+        title: "Total",
+        dataIndex: "total",
+        align: "right",
+        render: (value: number) => <Typography.Text strong>{formatMoney(value)}</Typography.Text>
+      }
+    ],
+    [orders]
   );
-}
 
-function DateField({ label, value, onChange }: { label: string; value: string; onChange: (val: string) => void }) {
   return (
-    <label className="text-xs">
-      <span className="mb-1 block text-slate-500">{label}</span>
-      <input type="date" value={value} onChange={(e) => onChange(e.target.value)} className="rounded-md border px-2 py-1" />
-    </label>
+    <ScreenPanel
+      title="Order History"
+      subtitle="Track transactions by date range"
+      className="screen-panel"
+      extra={
+        <Space size={8}>
+          <Space size={6}>
+            <CalendarOutlined />
+            <DatePicker value={dayjs(fromDate)} onChange={(date) => setFromDate(date?.format("YYYY-MM-DD") ?? todayISODate())} />
+          </Space>
+          <DatePicker value={dayjs(toDate)} onChange={(date) => setToDate(date?.format("YYYY-MM-DD") ?? todayISODate())} />
+        </Space>
+      }
+    >
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={orders}
+        size="middle"
+        pagination={{ pageSize: 10, showSizeChanger: false }}
+      />
+    </ScreenPanel>
   );
 }

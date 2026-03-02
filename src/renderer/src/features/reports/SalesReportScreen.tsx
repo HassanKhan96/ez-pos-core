@@ -1,52 +1,73 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { BarChartOutlined, RiseOutlined } from "@ant-design/icons";
+import { Col, Row, Space, Statistic, Table, Tag } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { ScreenPanel } from "@/components/ui/ScreenPanel";
 import { formatMoney } from "@/lib/format";
 import { usePosStore } from "@/state/use-pos-store";
 
 export function SalesReportScreen() {
-  const report = usePosStore((s) => s.report);
-  const loadReportForDate = usePosStore((s) => s.loadReportForDate);
+  const report = usePosStore((state) => state.report);
+  const loadReportForDate = usePosStore((state) => state.loadReportForDate);
 
   useEffect(() => {
     void loadReportForDate(new Date().toISOString());
   }, [loadReportForDate]);
 
-  return (
-    <section className="h-full rounded-2xl bg-white p-4 shadow-panel">
-      <h2 className="text-lg font-bold">Sales Analytics</h2>
-      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-        <Metric label="Total Sales (Today)" value={formatMoney(report?.daySales ?? 0)} />
-        <Metric label="Total Sales (This Month)" value={formatMoney(report?.monthSales ?? 0)} />
-      </div>
-      <h3 className="mt-6 text-base font-semibold">Top Products</h3>
-      <div className="mt-2 overflow-auto">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="text-left text-slate-500">
-              <th className="pb-2">Product</th>
-              <th className="pb-2">Qty Sold</th>
-              <th className="pb-2">Revenue</th>
-            </tr>
-          </thead>
-          <tbody>
-            {report?.topProducts.map((row) => (
-              <tr key={row.productName} className="border-t border-slate-100">
-                <td className="py-2">{row.productName}</td>
-                <td className="py-2">{row.qtySold}</td>
-                <td className="py-2">{formatMoney(row.revenue)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+  const columns = useMemo<ColumnsType<{ productName: string; qtySold: number; revenue: number }>>(
+    () => [
+      {
+        title: "Product",
+        dataIndex: "productName"
+      },
+      {
+        title: "Qty",
+        dataIndex: "qtySold",
+        align: "right",
+        render: (value: number) => <Tag color="cyan">{value}</Tag>
+      },
+      {
+        title: "Revenue",
+        dataIndex: "revenue",
+        align: "right",
+        render: (value: number) => formatMoney(value)
+      }
+    ],
+    []
   );
-}
 
-function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <p className="text-sm text-slate-600">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
-    </div>
+    <ScreenPanel
+      title="Sales Analytics"
+      subtitle="Daily and monthly trend highlights"
+      className="screen-panel"
+      extra={
+        <Space>
+          <Tag icon={<RiseOutlined />} color="green">
+            Live snapshot
+          </Tag>
+        </Space>
+      }
+    >
+      <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+        <Col xs={24} md={12}>
+          <div className="metric-card">
+            <Statistic title="Sales Today" value={report?.daySales ?? 0} formatter={(value) => formatMoney(Number(value ?? 0))} prefix={<BarChartOutlined />} />
+          </div>
+        </Col>
+        <Col xs={24} md={12}>
+          <div className="metric-card">
+            <Statistic title="Sales This Month" value={report?.monthSales ?? 0} formatter={(value) => formatMoney(Number(value ?? 0))} prefix={<RiseOutlined />} />
+          </div>
+        </Col>
+      </Row>
+
+      <Table
+        rowKey="productName"
+        columns={columns}
+        dataSource={report?.topProducts ?? []}
+        pagination={false}
+      />
+    </ScreenPanel>
   );
 }

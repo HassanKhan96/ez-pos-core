@@ -1,24 +1,64 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  ShoppingCartOutlined,
+  SnippetsOutlined
+} from "@ant-design/icons";
+import {
+  Button,
+  Divider,
+  Drawer,
+  Empty,
+  InputNumber,
+  List,
+  Modal,
+  Popover,
+  Space,
+  Typography
+} from "antd";
+import { ScreenPanel } from "@/components/ui/ScreenPanel";
 import { formatMoney } from "@/lib/format";
 import { usePosStore } from "@/state/use-pos-store";
 
 export function CartScreen() {
-  const { cart, products, charges, setCharge, removeFromCart, changeQty, placeOrder } = usePosStore();
+  const cart = usePosStore((state) => state.cart);
+  const products = usePosStore((state) => state.products);
+  const charges = usePosStore((state) => state.charges);
+  const setCharge = usePosStore((state) => state.setCharge);
+  const removeFromCart = usePosStore((state) => state.removeFromCart);
+  const changeQty = usePosStore((state) => state.changeQty);
+  const placeOrder = usePosStore((state) => state.placeOrder);
+
   const [openCharges, setOpenCharges] = useState(false);
-  const listRef = useRef<HTMLDivElement | null>(null);
+  const [lineActionKey, setLineActionKey] = useState<string | null>(null);
+  const [editingLineKey, setEditingLineKey] = useState<string | null>(null);
+  const [editingQty, setEditingQty] = useState<number>(1);
+  const [noteLineKey, setNoteLineKey] = useState<string | null>(null);
+  const [noteInput, setNoteInput] = useState("");
+  const [notesByLine, setNotesByLine] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setNotesByLine((current) => {
+      const validKeys = new Set(cart.map((line) => line.key));
+      return Object.fromEntries(Object.entries(current).filter(([key]) => validKeys.has(key)));
+    });
+  }, [cart]);
 
   const summary = useMemo(() => {
     const subtotal = cart.reduce((sum, line) => {
-      const product = products.find((p) => p.id === line.productId);
+      const product = products.find((item) => item.id === line.productId);
       if (!product) return sum;
       let unit = product.basePrice;
       if (line.sizeId) {
-        unit += product.sizes.find((s) => s.id === line.sizeId)?.priceDelta ?? 0;
+        unit += product.sizes.find((size) => size.id === line.sizeId)?.priceDelta ?? 0;
       }
       for (const selected of line.selectedVariations) {
-        const group = product.variationGroups.find((g) => g.id === selected.groupId);
+        const group = product.variationGroups.find((variationGroup) => variationGroup.id === selected.groupId);
         for (const choiceId of selected.choiceIds) {
-          unit += group?.choices.find((c) => c.id === choiceId)?.priceDelta ?? 0;
+          unit += group?.choices.find((choice) => choice.id === choiceId)?.priceDelta ?? 0;
         }
       }
       return sum + unit * line.quantity;
@@ -29,98 +69,216 @@ export function CartScreen() {
     const fees = charges.bagFee + charges.serviceFee;
     const tax = Math.round((taxableBase * charges.taxRatePercent) / 100);
     const total = taxableBase + fees + tax;
+
     return { subtotal, discount, fees, tax, total };
   }, [cart, charges, products]);
 
-  useEffect(() => {
-    const node = listRef.current;
-    if (!node) return;
-    node.scrollTop = node.scrollHeight;
-  }, [cart.length]);
-
   return (
-    <section className="flex h-full min-h-0 flex-col rounded-2xl bg-white p-4 shadow-panel">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Cart</h2>
-        <button type="button" onClick={() => setOpenCharges(true)} className="rounded-md bg-slate-200 px-3 py-1 text-xs font-semibold">
-          Add charges
-        </button>
+    <ScreenPanel
+      title="Cart"
+      subtitle="Compact checkout controls"
+      className="screen-panel cart-panel"
+    >
+      <div className="cart-toolbar">
+        <Button icon={<SnippetsOutlined />} onClick={() => setOpenCharges(true)}>
+          Charges
+        </Button>
       </div>
 
-      <div ref={listRef} className="mt-3 min-h-0 flex-1 space-y-2 overflow-auto pr-1">
-        {cart.map((line) => (
-          <div key={line.key} className="rounded-xl border border-slate-200 p-3">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold">{line.productName}</p>
-                {line.sizeName && <p className="text-xs text-slate-500">Size: {line.sizeName}</p>}
-                {line.selectedVariations.flatMap((v) => v.labels).length > 0 && (
-                  <p className="text-xs text-slate-500">{line.selectedVariations.flatMap((v) => v.labels).join(", ")}</p>
-                )}
-              </div>
-              <button type="button" onClick={() => removeFromCart(line.key)} className="text-sm text-red-600">
-                Delete
-              </button>
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => changeQty(line.key, -1)}
-                className="h-8 w-8 rounded-md bg-slate-200 font-bold"
-              >
-                -
-              </button>
-              <span className="min-w-8 text-center text-sm font-semibold">{line.quantity}</span>
-              <button
-                type="button"
-                onClick={() => changeQty(line.key, 1)}
-                className="h-8 w-8 rounded-md bg-slate-200 font-bold"
-              >
-                +
-              </button>
-            </div>
+      <div className="cart-root">
+        {cart.length === 0 ? (
+          <div className="cart-empty">
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No items in cart" />
           </div>
-        ))}
+        ) : (
+          <List
+            dataSource={cart}
+            split={false}
+            renderItem={(line) => (
+              <List.Item className="cart-line-item">
+                <div style={{ width: "100%" }}>
+                  <div className="cart-line-top">
+                    <Space direction="vertical" size={1} style={{ minWidth: 0 }}>
+                      <Typography.Text strong ellipsis>
+                        {line.productName}
+                      </Typography.Text>
+                      {(line.sizeName || line.selectedVariations.some((variation) => variation.labels.length > 0)) && (
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                          {[line.sizeName, ...line.selectedVariations.flatMap((variation) => variation.labels)]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </Typography.Text>
+                      )}
+                      {notesByLine[line.key] && (
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                          Note: {notesByLine[line.key]}
+                        </Typography.Text>
+                      )}
+                    </Space>
+
+                    <Popover
+                      trigger="click"
+                      open={lineActionKey === line.key}
+                      onOpenChange={(open) => setLineActionKey(open ? line.key : null)}
+                      content={
+                        <Space direction="vertical" size={4}>
+                          <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={() => {
+                              setLineActionKey(null);
+                              setEditingLineKey(line.key);
+                              setEditingQty(line.quantity);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            type="text"
+                            onClick={() => {
+                              setLineActionKey(null);
+                              setNoteLineKey(line.key);
+                              setNoteInput(notesByLine[line.key] ?? "");
+                            }}
+                          >
+                            Add note
+                          </Button>
+                          <Button
+                            danger
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            onClick={() => {
+                              setLineActionKey(null);
+                              removeFromCart(line.key);
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </Space>
+                      }
+                    >
+                      <Button size="small" type="text" danger icon={<DeleteOutlined />} />
+                    </Popover>
+                  </div>
+
+                  <div className="cart-line-actions">
+                    <Space.Compact>
+                      <Button icon={<MinusOutlined />} onClick={() => changeQty(line.key, -1)} />
+                      <Button disabled style={{ minWidth: 40, color: "#0f172a" }}>
+                        {line.quantity}
+                      </Button>
+                      <Button icon={<PlusOutlined />} onClick={() => changeQty(line.key, 1)} />
+                    </Space.Compact>
+                  </div>
+                </div>
+              </List.Item>
+            )}
+          />
+        )}
       </div>
 
-      <div className="sticky bottom-0 mt-3 space-y-3 bg-white pt-2">
-        <div className="space-y-1 rounded-xl bg-slate-100 p-3 text-sm">
-          <Row label="Subtotal" value={formatMoney(summary.subtotal)} />
-          <Row label="Discount" value={`- ${formatMoney(summary.discount)}`} />
-          <Row label="Fees" value={formatMoney(summary.fees)} />
-          <Row label="Tax" value={formatMoney(summary.tax)} />
-          <Row label="Total" value={formatMoney(summary.total)} strong />
-        </div>
+      <Divider style={{ margin: "10px 0" }} />
 
-        <button
-          type="button"
-          className="w-full rounded-xl bg-brand-600 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+      <Space direction="vertical" size={7} style={{ width: "100%" }}>
+        <Row label="Subtotal" value={formatMoney(summary.subtotal)} />
+        <Row label="Discount" value={`- ${formatMoney(summary.discount)}`} />
+        <Row label="Fees" value={formatMoney(summary.fees)} />
+        <Row label="Tax" value={formatMoney(summary.tax)} />
+        <Typography.Title level={5} style={{ margin: "4px 0 0", display: "flex", justifyContent: "space-between" }}>
+          <span>Total</span>
+          <span>{formatMoney(summary.total)}</span>
+        </Typography.Title>
+
+        <Button
+          type="primary"
+          size="large"
+          icon={<ShoppingCartOutlined />}
+          className="place-order-btn"
           disabled={cart.length === 0}
           onClick={() => void placeOrder()}
+          block
         >
           Place order
-        </button>
-      </div>
+        </Button>
+      </Space>
 
-      {openCharges && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-panel">
-            <h3 className="text-base font-bold">Apply Charges</h3>
-            <div className="mt-3 space-y-2 rounded-xl border border-slate-200 p-3 text-sm">
-              <ChargeInput label="Bag fee" value={charges.bagFee} onChange={(v) => setCharge("bagFee", v)} />
-              <ChargeInput label="Service fee" value={charges.serviceFee} onChange={(v) => setCharge("serviceFee", v)} />
-              <ChargeInput label="Tax %" value={charges.taxRatePercent} onChange={(v) => setCharge("taxRatePercent", v)} />
-              <ChargeInput label="Discount" value={charges.discountAmount} onChange={(v) => setCharge("discountAmount", v)} />
-            </div>
-            <div className="mt-3 flex justify-end">
-              <button type="button" onClick={() => setOpenCharges(false)} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white">
-                Apply
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
+      <Drawer
+        title="Charges and Taxes"
+        placement="right"
+        width={360}
+        open={openCharges}
+        onClose={() => setOpenCharges(false)}
+      >
+        <Space direction="vertical" size={14} style={{ width: "100%" }}>
+          <ChargeInput label="Bag fee" value={charges.bagFee} onChange={(value) => setCharge("bagFee", value)} />
+          <ChargeInput label="Service fee" value={charges.serviceFee} onChange={(value) => setCharge("serviceFee", value)} />
+          <ChargeInput label="Tax %" value={charges.taxRatePercent} onChange={(value) => setCharge("taxRatePercent", value)} />
+          <ChargeInput label="Discount" value={charges.discountAmount} onChange={(value) => setCharge("discountAmount", value)} />
+          <Button type="primary" block onClick={() => setOpenCharges(false)}>
+            Apply
+          </Button>
+        </Space>
+      </Drawer>
+
+      <Modal
+        open={Boolean(editingLineKey)}
+        title="Edit quantity"
+        onCancel={() => setEditingLineKey(null)}
+        onOk={() => {
+          if (!editingLineKey) {
+            return;
+          }
+          const line = cart.find((item) => item.key === editingLineKey);
+          if (!line) {
+            setEditingLineKey(null);
+            return;
+          }
+          const delta = Math.max(1, Math.round(editingQty)) - line.quantity;
+          if (delta !== 0) {
+            changeQty(line.key, delta);
+          }
+          setEditingLineKey(null);
+        }}
+        okText="Apply"
+      >
+        <InputNumber<number>
+          min={1}
+          value={editingQty}
+          onChange={(value) => setEditingQty(value ?? 1)}
+          style={{ width: "100%" }}
+        />
+      </Modal>
+
+      <Modal
+        open={Boolean(noteLineKey)}
+        title="Add note"
+        onCancel={() => setNoteLineKey(null)}
+        onOk={() => {
+          if (!noteLineKey) {
+            return;
+          }
+          const next = noteInput.trim();
+          setNotesByLine((current) => {
+            if (!next) {
+              const { [noteLineKey]: _omit, ...rest } = current;
+              return rest;
+            }
+            return { ...current, [noteLineKey]: next };
+          });
+          setNoteLineKey(null);
+          setNoteInput("");
+        }}
+        okText="Save"
+      >
+        <textarea
+          value={noteInput}
+          onChange={(event) => setNoteInput(event.target.value)}
+          rows={3}
+          className="cart-note-input"
+          placeholder="Add prep or instruction note"
+        />
+      </Modal>
+    </ScreenPanel>
   );
 }
 
@@ -134,23 +292,23 @@ function ChargeInput({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-2">
-      <span>{label}</span>
-      <input
-        type="number"
+    <Space direction="vertical" size={4} style={{ width: "100%" }}>
+      <Typography.Text type="secondary">{label}</Typography.Text>
+      <InputNumber<number>
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-24 rounded-md border border-slate-300 px-2 py-1 text-right"
+        min={0}
+        style={{ width: "100%" }}
+        onChange={(nextValue) => onChange(nextValue ?? 0)}
       />
-    </label>
+    </Space>
   );
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`flex items-center justify-between ${strong ? "font-bold text-slate-900" : "text-slate-700"}`}>
-      <span>{label}</span>
-      <span>{value}</span>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <Typography.Text type="secondary">{label}</Typography.Text>
+      <Typography.Text strong>{value}</Typography.Text>
     </div>
   );
 }

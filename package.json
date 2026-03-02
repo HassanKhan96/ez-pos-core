@@ -12,7 +12,6 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "npm run prisma:generate && tsx prisma/seed.ts",
-    "prisma:uuidify": "npm run prisma:generate && tsx prisma/migrate-ids-to-uuid.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -49,9 +48,11 @@
     }
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "@point-of-sale/receipt-printer-encoder": "^3.0.3",
     "@point-of-sale/webbluetooth-receipt-printer": "^2.0.0",
     "@prisma/client": "^6.4.1",
+    "antd": "^6.3.1",
     "clsx": "^2.1.1",
     "electron-store": "^10.0.1",
     "react": "^19.0.0",
