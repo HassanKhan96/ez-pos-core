@@ -100,7 +100,7 @@ export function InventoryScreen() {
         title: "Product",
         dataIndex: "name",
         render: (_, row) => (
-          <Space direction="vertical" size={0}>
+          <Space orientation="vertical" size={0}>
             <Typography.Text strong>{row.name}</Typography.Text>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               SKU: {row.sku || "NA"}
@@ -240,7 +240,7 @@ export function InventoryScreen() {
         </Space>
       }
     >
-      <Space direction="vertical" size={12} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={12} style={{ width: "100%" }}>
         <Space wrap size={8}>
           {categories.length === 0 && <Tag>No categories</Tag>}
           {categories.map((category) => (
@@ -278,9 +278,9 @@ export function InventoryScreen() {
         onCancel={() => setOpenCategoryModal(false)}
         onOk={() => void onSaveCategory()}
         okText="Save"
-        destroyOnClose
+        destroyOnHidden
       >
-        <Space direction="vertical" size={12} style={{ width: "100%", marginTop: 8 }}>
+        <Space orientation="vertical" size={12} style={{ width: "100%", marginTop: 8 }}>
           <Input placeholder="Category name" value={categoryName} onChange={(event) => setCategoryName(event.target.value)} />
           <Input.TextArea
             rows={3}
@@ -421,11 +421,11 @@ function ItemModal({
       onCancel={onClose}
       onOk={onSave}
       okText={isEdit ? "Update Item" : "Add Item"}
-      destroyOnClose
+      destroyOnHidden
       style={{ top: 24 }}
     >
       <div style={{ maxHeight: "72vh", overflow: "auto", paddingRight: 4 }}>
-        <Space direction="vertical" size={14} style={{ width: "100%" }}>
+        <Space orientation="vertical" size={14} style={{ width: "100%" }}>
           <Card size="small" title="Core Details">
             <div className="inventory-form-grid">
               <Field label="Name" required>
@@ -487,7 +487,7 @@ function ItemModal({
             {draft.sizes.length === 0 ? (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No sizes" />
             ) : (
-              <Space direction="vertical" size={8} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={8} style={{ width: "100%" }}>
                 {draft.sizes.map((size, index) => (
                   <div key={size.id ?? `size-${index}`} className="inventory-row-grid">
                     <Input
@@ -515,7 +515,7 @@ function ItemModal({
             {draft.variationGroups.length === 0 ? (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No variation groups" />
             ) : (
-              <Space direction="vertical" size={12} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={12} style={{ width: "100%" }}>
                 {draft.variationGroups.map((group, groupIndex) => (
                   <Card
                     key={group.id ?? `group-${groupIndex}`}
@@ -523,7 +523,7 @@ function ItemModal({
                     title={group.name || `Group ${groupIndex + 1}`}
                     extra={<Button danger size="small" onClick={() => removeGroup(groupIndex)}>Remove Group</Button>}
                   >
-                    <Space direction="vertical" size={10} style={{ width: "100%" }}>
+                    <Space orientation="vertical" size={10} style={{ width: "100%" }}>
                       <div className="inventory-form-grid">
                         <Field label="Group Name">
                           <Input
@@ -561,7 +561,7 @@ function ItemModal({
 
                       <Divider style={{ margin: "4px 0" }} />
 
-                      <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                      <Space orientation="vertical" size={8} style={{ width: "100%" }}>
                         <Space style={{ justifyContent: "space-between", width: "100%" }}>
                           <Typography.Text strong>Choices</Typography.Text>
                           <Button size="small" icon={<PlusOutlined />} onClick={() => addChoice(groupIndex)}>
@@ -572,7 +572,7 @@ function ItemModal({
                         {group.choices.length === 0 ? (
                           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No choices" />
                         ) : (
-                          <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                          <Space orientation="vertical" size={8} style={{ width: "100%" }}>
                             {group.choices.map((choice, choiceIndex) => (
                               <div key={choice.id ?? `choice-${choiceIndex}`} className="inventory-row-grid">
                                 <Input
@@ -613,7 +613,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <Space direction="vertical" size={6} style={{ width: "100%" }}>
+    <Space orientation="vertical" size={6} style={{ width: "100%" }}>
       <Typography.Text>
         {label}
         {required ? " *" : ""}

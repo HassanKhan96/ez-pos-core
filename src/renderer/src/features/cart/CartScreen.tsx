@@ -13,7 +13,6 @@ import {
   Drawer,
   Empty,
   InputNumber,
-  List,
   Modal,
   Popover,
   Space,
@@ -91,14 +90,12 @@ export function CartScreen() {
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No items in cart" />
           </div>
         ) : (
-          <List
-            dataSource={cart}
-            split={false}
-            renderItem={(line) => (
-              <List.Item className="cart-line-item">
+          <div className="cart-list">
+            {cart.map((line) => (
+              <div key={line.key} className="cart-line-item">
                 <div style={{ width: "100%" }}>
                   <div className="cart-line-top">
-                    <Space direction="vertical" size={1} style={{ minWidth: 0 }}>
+                    <Space orientation="vertical" size={1} style={{ minWidth: 0 }}>
                       <Typography.Text strong ellipsis>
                         {line.productName}
                       </Typography.Text>
@@ -121,7 +118,7 @@ export function CartScreen() {
                       open={lineActionKey === line.key}
                       onOpenChange={(open) => setLineActionKey(open ? line.key : null)}
                       content={
-                        <Space direction="vertical" size={4}>
+                        <Space orientation="vertical" size={4}>
                           <Button
                             type="text"
                             icon={<EditOutlined />}
@@ -171,15 +168,15 @@ export function CartScreen() {
                     </Space.Compact>
                   </div>
                 </div>
-              </List.Item>
-            )}
-          />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
       <Divider style={{ margin: "10px 0" }} />
 
-      <Space direction="vertical" size={7} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={7} style={{ width: "100%" }}>
         <Row label="Subtotal" value={formatMoney(summary.subtotal)} />
         <Row label="Discount" value={`- ${formatMoney(summary.discount)}`} />
         <Row label="Fees" value={formatMoney(summary.fees)} />
@@ -205,11 +202,11 @@ export function CartScreen() {
       <Drawer
         title="Charges and Taxes"
         placement="right"
-        width={360}
+        size="default"
         open={openCharges}
         onClose={() => setOpenCharges(false)}
       >
-        <Space direction="vertical" size={14} style={{ width: "100%" }}>
+        <Space orientation="vertical" size={14} style={{ width: "100%" }}>
           <ChargeInput label="Bag fee" value={charges.bagFee} onChange={(value) => setCharge("bagFee", value)} />
           <ChargeInput label="Service fee" value={charges.serviceFee} onChange={(value) => setCharge("serviceFee", value)} />
           <ChargeInput label="Tax %" value={charges.taxRatePercent} onChange={(value) => setCharge("taxRatePercent", value)} />
@@ -292,7 +289,7 @@ function ChargeInput({
   onChange: (value: number) => void;
 }) {
   return (
-    <Space direction="vertical" size={4} style={{ width: "100%" }}>
+    <Space orientation="vertical" size={4} style={{ width: "100%" }}>
       <Typography.Text type="secondary">{label}</Typography.Text>
       <InputNumber<number>
         value={value}

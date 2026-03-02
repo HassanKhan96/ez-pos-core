@@ -40,7 +40,7 @@ export function VariationModal({ product, onClose, onConfirm }: Props) {
       width={760}
       centered
     >
-      <Space direction="vertical" size={14} style={{ width: "100%" }}>
+      <Space orientation="vertical" size={14} style={{ width: "100%" }}>
         {product.sizes.length > 0 && (
           <div>
             <Typography.Text strong>Select size</Typography.Text>
@@ -69,7 +69,7 @@ export function VariationModal({ product, onClose, onConfirm }: Props) {
                 <Typography.Text strong>{group.name}</Typography.Text>
                 <Tag color="default">max {group.maxSelectable}</Tag>
               </Space>
-              <Space direction="vertical" size={6} style={{ display: "flex", marginTop: 8 }}>
+              <Space orientation="vertical" size={6} style={{ display: "flex", marginTop: 8 }}>
                 {group.choices.map((choice) => {
                   const isSelected = selectedSet.includes(choice.id ?? "");
                   return (

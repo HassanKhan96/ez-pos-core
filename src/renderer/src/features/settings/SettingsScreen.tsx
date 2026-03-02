@@ -79,7 +79,7 @@ export function SettingsScreen() {
   return (
     <div className="settings-grid">
       <Card className="screen-panel" title="Store Settings" extra={<SettingOutlined />}>
-        <Space direction="vertical" size={10} style={{ width: "100%" }}>
+        <Space orientation="vertical" size={10} style={{ width: "100%" }}>
           <Typography.Text type="secondary">Store name shown on receipts and navigation.</Typography.Text>
           <input
             type="text"
@@ -110,7 +110,7 @@ export function SettingsScreen() {
           </Button>
         ]}
       >
-        <Space direction="vertical" size={8}>
+        <Space orientation="vertical" size={8}>
           <Typography.Text>
             Mode: <Typography.Text strong>{modeLabel(printerConfig.mode)}</Typography.Text>
           </Typography.Text>
@@ -159,8 +159,8 @@ export function SettingsScreen() {
           </Space>
         }
       >
-        <Space direction="vertical" size={14} style={{ width: "100%" }}>
-          <Space direction="vertical" size={6} style={{ width: "100%" }}>
+        <Space orientation="vertical" size={14} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={6} style={{ width: "100%" }}>
             <Typography.Text strong>Mode</Typography.Text>
             <Select
               value={mode}
@@ -186,7 +186,7 @@ export function SettingsScreen() {
           )}
 
           {mode === "classic" && (
-            <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={12} style={{ width: "100%" }}>
               <Select
                 placeholder="Choose Bluetooth serial port"
                 value={selectedSerialPath}
@@ -252,7 +252,7 @@ export function SettingsScreen() {
           )}
 
           {mode === "bluetooth" && (
-            <Space direction="vertical" size={12} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={12} style={{ width: "100%" }}>
               <Typography.Text>
                 Device: <Typography.Text strong>{btName}</Typography.Text> | Status: <Typography.Text strong>{btConnected ? "Connected" : "Disconnected"}</Typography.Text>
               </Typography.Text>

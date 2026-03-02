@@ -19,7 +19,7 @@ export function SuccessModal({ message, onClose }: Props) {
     >
       <Space align="start" size={12}>
         <CheckCircleTwoTone twoToneColor="#16a34a" style={{ fontSize: 22, marginTop: 2 }} />
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           <Typography.Text strong>Notice</Typography.Text>
           <Typography.Text>{message}</Typography.Text>
         </Space>

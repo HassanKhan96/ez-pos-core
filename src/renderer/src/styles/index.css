@@ -225,6 +225,11 @@ body {
   padding-right: 2px;
 }
 
+.cart-list {
+  display: flex;
+  flex-direction: column;
+}
+
 .cart-empty {
   display: grid;
   place-items: center;

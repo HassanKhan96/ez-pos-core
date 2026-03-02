@@ -14,7 +14,7 @@ export function ScreenPanel({ title, subtitle, extra, children, className }: Pro
     <Card
       className={className}
       title={
-        <Space direction="vertical" size={1} className="screen-panel-title">
+        <Space orientation="vertical" size={1} className="screen-panel-title">
           <Typography.Title level={4} style={{ margin: 0 }}>
             {title}
           </Typography.Title>
