@@ -17,7 +17,8 @@ async function main() {
   await prisma.storeSettings.create({
     data: {
       id: 1,
-      storeName: "EZ Demo Store"
+      storeName: "EZ Demo Store",
+      businessProfile: "MART"
     }
   });
 

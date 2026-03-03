@@ -326,6 +326,7 @@ export async function printBluetoothTest(): Promise<void> {
   const receipt: OrderReceiptDTO = {
     orderId: "test",
     orderNumber: 0,
+    channel: "TAKEOUT",
     createdAt: new Date().toISOString(),
     storeName: localStorage.getItem("store_name") || "My Store",
     subtotal: 0,

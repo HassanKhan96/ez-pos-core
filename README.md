@@ -26,6 +26,7 @@ Offline-first desktop POS for restaurants, kirana stores, grocery marts, and pha
 2. Configure env:
    - `cp .env.example .env`
    - ensure `DATABASE_URL` is `file:./prisma/dev.db`
+   - set `POS_BUSINESS_PROFILE` to one of `RESTAURANT`, `MART`, `PHARMACY` (deployment-controlled, not editable in app UI)
 3. Create database and client:
    - `npm run prisma:migrate`
 4. Seed demo data:

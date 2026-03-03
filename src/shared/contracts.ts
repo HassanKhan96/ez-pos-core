@@ -1,3 +1,19 @@
+export const BUSINESS_PROFILES = ["RESTAURANT", "MART", "PHARMACY"] as const;
+export type BusinessProfile = (typeof BUSINESS_PROFILES)[number];
+
+export const ORDER_CHANNELS = ["DINE_IN", "TAKEOUT", "DELIVERY", "COLLECTION"] as const;
+export type OrderChannel = (typeof ORDER_CHANNELS)[number];
+
+export const CAPABILITY_KEYS = [
+  "ORDER_CHANNEL_DINE_IN",
+  "ORDER_CHANNEL_TAKEOUT",
+  "ORDER_CHANNEL_DELIVERY",
+  "ORDER_CHANNEL_COLLECTION"
+] as const;
+export type CapabilityKey = (typeof CAPABILITY_KEYS)[number];
+
+export type CapabilityFlags = Record<CapabilityKey, boolean>;
+
 export type ProductSizeInput = {
   id?: string;
   name: string;
@@ -71,6 +87,7 @@ export type ChargeInput = {
 };
 
 export type PlaceOrderInput = {
+  channel: OrderChannel;
   items: CartItemInput[];
   charges: ChargeInput;
 };
@@ -78,6 +95,7 @@ export type PlaceOrderInput = {
 export type OrderListItem = {
   id: string;
   orderNumber: number;
+  channel: OrderChannel;
   subtotal: number;
   discount: number;
   fees: number;
@@ -97,6 +115,7 @@ export type ReceiptLineItem = {
 export type OrderReceiptDTO = {
   orderId: string;
   orderNumber: number;
+  channel: OrderChannel;
   createdAt: string;
   storeName: string;
   subtotal: number;
@@ -114,6 +133,12 @@ export type SalesSummary = {
 };
 
 export type StoreSettingsDTO = {
+  storeName: string;
+  businessProfile: BusinessProfile;
+  capabilities: CapabilityFlags;
+};
+
+export type StoreSettingsUpdateInput = {
   storeName: string;
 };
 
@@ -166,7 +191,7 @@ export type POSApi = {
   };
   settings: {
     get: () => Promise<StoreSettingsDTO>;
-    update: (payload: StoreSettingsDTO) => Promise<StoreSettingsDTO>;
+    update: (payload: StoreSettingsUpdateInput) => Promise<StoreSettingsDTO>;
   };
   reports: {
     summary: (dateISO: string) => Promise<SalesSummary>;

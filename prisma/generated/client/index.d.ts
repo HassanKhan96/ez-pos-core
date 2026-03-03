@@ -65,6 +65,38 @@ export type OrderItemVariation = $Result.DefaultSelection<Prisma.$OrderItemVaria
 export type StoreSettings = $Result.DefaultSelection<Prisma.$StoreSettingsPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const BusinessProfile: {
+  RESTAURANT: 'RESTAURANT',
+  MART: 'MART',
+  PHARMACY: 'PHARMACY'
+};
+
+export type BusinessProfile = (typeof BusinessProfile)[keyof typeof BusinessProfile]
+
+
+export const OrderChannel: {
+  DINE_IN: 'DINE_IN',
+  TAKEOUT: 'TAKEOUT',
+  DELIVERY: 'DELIVERY',
+  COLLECTION: 'COLLECTION'
+};
+
+export type OrderChannel = (typeof OrderChannel)[keyof typeof OrderChannel]
+
+}
+
+export type BusinessProfile = $Enums.BusinessProfile
+
+export const BusinessProfile: typeof $Enums.BusinessProfile
+
+export type OrderChannel = $Enums.OrderChannel
+
+export const OrderChannel: typeof $Enums.OrderChannel
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
@@ -8629,6 +8661,7 @@ export namespace Prisma {
   export type OrderMinAggregateOutputType = {
     id: string | null
     orderNumber: number | null
+    channel: $Enums.OrderChannel | null
     subtotal: number | null
     discount: number | null
     fees: number | null
@@ -8640,6 +8673,7 @@ export namespace Prisma {
   export type OrderMaxAggregateOutputType = {
     id: string | null
     orderNumber: number | null
+    channel: $Enums.OrderChannel | null
     subtotal: number | null
     discount: number | null
     fees: number | null
@@ -8651,6 +8685,7 @@ export namespace Prisma {
   export type OrderCountAggregateOutputType = {
     id: number
     orderNumber: number
+    channel: number
     subtotal: number
     discount: number
     fees: number
@@ -8682,6 +8717,7 @@ export namespace Prisma {
   export type OrderMinAggregateInputType = {
     id?: true
     orderNumber?: true
+    channel?: true
     subtotal?: true
     discount?: true
     fees?: true
@@ -8693,6 +8729,7 @@ export namespace Prisma {
   export type OrderMaxAggregateInputType = {
     id?: true
     orderNumber?: true
+    channel?: true
     subtotal?: true
     discount?: true
     fees?: true
@@ -8704,6 +8741,7 @@ export namespace Prisma {
   export type OrderCountAggregateInputType = {
     id?: true
     orderNumber?: true
+    channel?: true
     subtotal?: true
     discount?: true
     fees?: true
@@ -8802,6 +8840,7 @@ export namespace Prisma {
   export type OrderGroupByOutputType = {
     id: string
     orderNumber: number
+    channel: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -8832,6 +8871,7 @@ export namespace Prisma {
   export type OrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orderNumber?: boolean
+    channel?: boolean
     subtotal?: boolean
     discount?: boolean
     fees?: boolean
@@ -8845,6 +8885,7 @@ export namespace Prisma {
   export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orderNumber?: boolean
+    channel?: boolean
     subtotal?: boolean
     discount?: boolean
     fees?: boolean
@@ -8856,6 +8897,7 @@ export namespace Prisma {
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     orderNumber?: boolean
+    channel?: boolean
     subtotal?: boolean
     discount?: boolean
     fees?: boolean
@@ -8867,6 +8909,7 @@ export namespace Prisma {
   export type OrderSelectScalar = {
     id?: boolean
     orderNumber?: boolean
+    channel?: boolean
     subtotal?: boolean
     discount?: boolean
     fees?: boolean
@@ -8875,7 +8918,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "subtotal" | "discount" | "fees" | "tax" | "total" | "createdAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "channel" | "subtotal" | "discount" | "fees" | "tax" | "total" | "createdAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | Order$itemsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
@@ -8891,6 +8934,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       orderNumber: number
+      channel: $Enums.OrderChannel
       subtotal: number
       discount: number
       fees: number
@@ -9323,6 +9367,7 @@ export namespace Prisma {
   interface OrderFieldRefs {
     readonly id: FieldRef<"Order", 'String'>
     readonly orderNumber: FieldRef<"Order", 'Int'>
+    readonly channel: FieldRef<"Order", 'OrderChannel'>
     readonly subtotal: FieldRef<"Order", 'Int'>
     readonly discount: FieldRef<"Order", 'Int'>
     readonly fees: FieldRef<"Order", 'Int'>
@@ -12045,16 +12090,19 @@ export namespace Prisma {
   export type StoreSettingsMinAggregateOutputType = {
     id: number | null
     storeName: string | null
+    businessProfile: $Enums.BusinessProfile | null
   }
 
   export type StoreSettingsMaxAggregateOutputType = {
     id: number | null
     storeName: string | null
+    businessProfile: $Enums.BusinessProfile | null
   }
 
   export type StoreSettingsCountAggregateOutputType = {
     id: number
     storeName: number
+    businessProfile: number
     _all: number
   }
 
@@ -12070,16 +12118,19 @@ export namespace Prisma {
   export type StoreSettingsMinAggregateInputType = {
     id?: true
     storeName?: true
+    businessProfile?: true
   }
 
   export type StoreSettingsMaxAggregateInputType = {
     id?: true
     storeName?: true
+    businessProfile?: true
   }
 
   export type StoreSettingsCountAggregateInputType = {
     id?: true
     storeName?: true
+    businessProfile?: true
     _all?: true
   }
 
@@ -12172,6 +12223,7 @@ export namespace Prisma {
   export type StoreSettingsGroupByOutputType = {
     id: number
     storeName: string
+    businessProfile: $Enums.BusinessProfile
     _count: StoreSettingsCountAggregateOutputType | null
     _avg: StoreSettingsAvgAggregateOutputType | null
     _sum: StoreSettingsSumAggregateOutputType | null
@@ -12196,24 +12248,28 @@ export namespace Prisma {
   export type StoreSettingsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     storeName?: boolean
+    businessProfile?: boolean
   }, ExtArgs["result"]["storeSettings"]>
 
   export type StoreSettingsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     storeName?: boolean
+    businessProfile?: boolean
   }, ExtArgs["result"]["storeSettings"]>
 
   export type StoreSettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     storeName?: boolean
+    businessProfile?: boolean
   }, ExtArgs["result"]["storeSettings"]>
 
   export type StoreSettingsSelectScalar = {
     id?: boolean
     storeName?: boolean
+    businessProfile?: boolean
   }
 
-  export type StoreSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "storeName", ExtArgs["result"]["storeSettings"]>
+  export type StoreSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "storeName" | "businessProfile", ExtArgs["result"]["storeSettings"]>
 
   export type $StoreSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "StoreSettings"
@@ -12221,6 +12277,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       storeName: string
+      businessProfile: $Enums.BusinessProfile
     }, ExtArgs["result"]["storeSettings"]>
     composites: {}
   }
@@ -12646,6 +12703,7 @@ export namespace Prisma {
   interface StoreSettingsFieldRefs {
     readonly id: FieldRef<"StoreSettings", 'Int'>
     readonly storeName: FieldRef<"StoreSettings", 'String'>
+    readonly businessProfile: FieldRef<"StoreSettings", 'BusinessProfile'>
   }
     
 
@@ -13094,6 +13152,7 @@ export namespace Prisma {
   export const OrderScalarFieldEnum: {
     id: 'id',
     orderNumber: 'orderNumber',
+    channel: 'channel',
     subtotal: 'subtotal',
     discount: 'discount',
     fees: 'fees',
@@ -13132,7 +13191,8 @@ export namespace Prisma {
 
   export const StoreSettingsScalarFieldEnum: {
     id: 'id',
-    storeName: 'storeName'
+    storeName: 'storeName',
+    businessProfile: 'businessProfile'
   };
 
   export type StoreSettingsScalarFieldEnum = (typeof StoreSettingsScalarFieldEnum)[keyof typeof StoreSettingsScalarFieldEnum]
@@ -13184,6 +13244,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrderChannel'
+   */
+  export type EnumOrderChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderChannel'>
+    
+
+
+  /**
+   * Reference to a field of type 'BusinessProfile'
+   */
+  export type EnumBusinessProfileFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessProfile'>
     
 
 
@@ -13578,6 +13652,7 @@ export namespace Prisma {
     NOT?: OrderWhereInput | OrderWhereInput[]
     id?: StringFilter<"Order"> | string
     orderNumber?: IntFilter<"Order"> | number
+    channel?: EnumOrderChannelFilter<"Order"> | $Enums.OrderChannel
     subtotal?: IntFilter<"Order"> | number
     discount?: IntFilter<"Order"> | number
     fees?: IntFilter<"Order"> | number
@@ -13590,6 +13665,7 @@ export namespace Prisma {
   export type OrderOrderByWithRelationInput = {
     id?: SortOrder
     orderNumber?: SortOrder
+    channel?: SortOrder
     subtotal?: SortOrder
     discount?: SortOrder
     fees?: SortOrder
@@ -13605,6 +13681,7 @@ export namespace Prisma {
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
+    channel?: EnumOrderChannelFilter<"Order"> | $Enums.OrderChannel
     subtotal?: IntFilter<"Order"> | number
     discount?: IntFilter<"Order"> | number
     fees?: IntFilter<"Order"> | number
@@ -13617,6 +13694,7 @@ export namespace Prisma {
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder
     orderNumber?: SortOrder
+    channel?: SortOrder
     subtotal?: SortOrder
     discount?: SortOrder
     fees?: SortOrder
@@ -13636,6 +13714,7 @@ export namespace Prisma {
     NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Order"> | string
     orderNumber?: IntWithAggregatesFilter<"Order"> | number
+    channel?: EnumOrderChannelWithAggregatesFilter<"Order"> | $Enums.OrderChannel
     subtotal?: IntWithAggregatesFilter<"Order"> | number
     discount?: IntWithAggregatesFilter<"Order"> | number
     fees?: IntWithAggregatesFilter<"Order"> | number
@@ -13785,11 +13864,13 @@ export namespace Prisma {
     NOT?: StoreSettingsWhereInput | StoreSettingsWhereInput[]
     id?: IntFilter<"StoreSettings"> | number
     storeName?: StringFilter<"StoreSettings"> | string
+    businessProfile?: EnumBusinessProfileFilter<"StoreSettings"> | $Enums.BusinessProfile
   }
 
   export type StoreSettingsOrderByWithRelationInput = {
     id?: SortOrder
     storeName?: SortOrder
+    businessProfile?: SortOrder
   }
 
   export type StoreSettingsWhereUniqueInput = Prisma.AtLeast<{
@@ -13798,11 +13879,13 @@ export namespace Prisma {
     OR?: StoreSettingsWhereInput[]
     NOT?: StoreSettingsWhereInput | StoreSettingsWhereInput[]
     storeName?: StringFilter<"StoreSettings"> | string
+    businessProfile?: EnumBusinessProfileFilter<"StoreSettings"> | $Enums.BusinessProfile
   }, "id">
 
   export type StoreSettingsOrderByWithAggregationInput = {
     id?: SortOrder
     storeName?: SortOrder
+    businessProfile?: SortOrder
     _count?: StoreSettingsCountOrderByAggregateInput
     _avg?: StoreSettingsAvgOrderByAggregateInput
     _max?: StoreSettingsMaxOrderByAggregateInput
@@ -13816,6 +13899,7 @@ export namespace Prisma {
     NOT?: StoreSettingsScalarWhereWithAggregatesInput | StoreSettingsScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"StoreSettings"> | number
     storeName?: StringWithAggregatesFilter<"StoreSettings"> | string
+    businessProfile?: EnumBusinessProfileWithAggregatesFilter<"StoreSettings"> | $Enums.BusinessProfile
   }
 
   export type ProductCreateInput = {
@@ -14204,6 +14288,7 @@ export namespace Prisma {
   export type OrderCreateInput = {
     id?: string
     orderNumber: number
+    channel?: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -14216,6 +14301,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateInput = {
     id?: string
     orderNumber: number
+    channel?: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -14228,6 +14314,7 @@ export namespace Prisma {
   export type OrderUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number
@@ -14240,6 +14327,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number
@@ -14252,6 +14340,7 @@ export namespace Prisma {
   export type OrderCreateManyInput = {
     id?: string
     orderNumber: number
+    channel?: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -14263,6 +14352,7 @@ export namespace Prisma {
   export type OrderUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number
@@ -14274,6 +14364,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number
@@ -14419,36 +14510,43 @@ export namespace Prisma {
   export type StoreSettingsCreateInput = {
     id: number
     storeName: string
+    businessProfile?: $Enums.BusinessProfile
   }
 
   export type StoreSettingsUncheckedCreateInput = {
     id: number
     storeName: string
+    businessProfile?: $Enums.BusinessProfile
   }
 
   export type StoreSettingsUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     storeName?: StringFieldUpdateOperationsInput | string
+    businessProfile?: EnumBusinessProfileFieldUpdateOperationsInput | $Enums.BusinessProfile
   }
 
   export type StoreSettingsUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     storeName?: StringFieldUpdateOperationsInput | string
+    businessProfile?: EnumBusinessProfileFieldUpdateOperationsInput | $Enums.BusinessProfile
   }
 
   export type StoreSettingsCreateManyInput = {
     id: number
     storeName: string
+    businessProfile?: $Enums.BusinessProfile
   }
 
   export type StoreSettingsUpdateManyMutationInput = {
     id?: IntFieldUpdateOperationsInput | number
     storeName?: StringFieldUpdateOperationsInput | string
+    businessProfile?: EnumBusinessProfileFieldUpdateOperationsInput | $Enums.BusinessProfile
   }
 
   export type StoreSettingsUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     storeName?: StringFieldUpdateOperationsInput | string
+    businessProfile?: EnumBusinessProfileFieldUpdateOperationsInput | $Enums.BusinessProfile
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -14857,9 +14955,17 @@ export namespace Prisma {
     sortOrder?: SortOrder
   }
 
+  export type EnumOrderChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderChannel | EnumOrderChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderChannel[]
+    notIn?: $Enums.OrderChannel[]
+    not?: NestedEnumOrderChannelFilter<$PrismaModel> | $Enums.OrderChannel
+  }
+
   export type OrderCountOrderByAggregateInput = {
     id?: SortOrder
     orderNumber?: SortOrder
+    channel?: SortOrder
     subtotal?: SortOrder
     discount?: SortOrder
     fees?: SortOrder
@@ -14880,6 +14986,7 @@ export namespace Prisma {
   export type OrderMaxOrderByAggregateInput = {
     id?: SortOrder
     orderNumber?: SortOrder
+    channel?: SortOrder
     subtotal?: SortOrder
     discount?: SortOrder
     fees?: SortOrder
@@ -14891,6 +14998,7 @@ export namespace Prisma {
   export type OrderMinOrderByAggregateInput = {
     id?: SortOrder
     orderNumber?: SortOrder
+    channel?: SortOrder
     subtotal?: SortOrder
     discount?: SortOrder
     fees?: SortOrder
@@ -14906,6 +15014,16 @@ export namespace Prisma {
     fees?: SortOrder
     tax?: SortOrder
     total?: SortOrder
+  }
+
+  export type EnumOrderChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderChannel | EnumOrderChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderChannel[]
+    notIn?: $Enums.OrderChannel[]
+    not?: NestedEnumOrderChannelWithAggregatesFilter<$PrismaModel> | $Enums.OrderChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderChannelFilter<$PrismaModel>
+    _max?: NestedEnumOrderChannelFilter<$PrismaModel>
   }
 
   export type OrderScalarRelationFilter = {
@@ -15005,9 +15123,17 @@ export namespace Prisma {
     priceDelta?: SortOrder
   }
 
+  export type EnumBusinessProfileFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusinessProfile | EnumBusinessProfileFieldRefInput<$PrismaModel>
+    in?: $Enums.BusinessProfile[]
+    notIn?: $Enums.BusinessProfile[]
+    not?: NestedEnumBusinessProfileFilter<$PrismaModel> | $Enums.BusinessProfile
+  }
+
   export type StoreSettingsCountOrderByAggregateInput = {
     id?: SortOrder
     storeName?: SortOrder
+    businessProfile?: SortOrder
   }
 
   export type StoreSettingsAvgOrderByAggregateInput = {
@@ -15017,15 +15143,27 @@ export namespace Prisma {
   export type StoreSettingsMaxOrderByAggregateInput = {
     id?: SortOrder
     storeName?: SortOrder
+    businessProfile?: SortOrder
   }
 
   export type StoreSettingsMinOrderByAggregateInput = {
     id?: SortOrder
     storeName?: SortOrder
+    businessProfile?: SortOrder
   }
 
   export type StoreSettingsSumOrderByAggregateInput = {
     id?: SortOrder
+  }
+
+  export type EnumBusinessProfileWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusinessProfile | EnumBusinessProfileFieldRefInput<$PrismaModel>
+    in?: $Enums.BusinessProfile[]
+    notIn?: $Enums.BusinessProfile[]
+    not?: NestedEnumBusinessProfileWithAggregatesFilter<$PrismaModel> | $Enums.BusinessProfile
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBusinessProfileFilter<$PrismaModel>
+    _max?: NestedEnumBusinessProfileFilter<$PrismaModel>
   }
 
   export type CategoryCreateNestedOneWithoutProductsInput = {
@@ -15380,6 +15518,10 @@ export namespace Prisma {
     connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
   }
 
+  export type EnumOrderChannelFieldUpdateOperationsInput = {
+    set?: $Enums.OrderChannel
+  }
+
   export type OrderItemUpdateManyWithoutOrderNestedInput = {
     create?: XOR<OrderItemCreateWithoutOrderInput, OrderItemUncheckedCreateWithoutOrderInput> | OrderItemCreateWithoutOrderInput[] | OrderItemUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: OrderItemCreateOrConnectWithoutOrderInput | OrderItemCreateOrConnectWithoutOrderInput[]
@@ -15490,6 +15632,10 @@ export namespace Prisma {
     upsert?: OrderItemUpsertWithoutVariationsInput
     connect?: OrderItemWhereUniqueInput
     update?: XOR<XOR<OrderItemUpdateToOneWithWhereWithoutVariationsInput, OrderItemUpdateWithoutVariationsInput>, OrderItemUncheckedUpdateWithoutVariationsInput>
+  }
+
+  export type EnumBusinessProfileFieldUpdateOperationsInput = {
+    set?: $Enums.BusinessProfile
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -15639,6 +15785,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumOrderChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderChannel | EnumOrderChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderChannel[]
+    notIn?: $Enums.OrderChannel[]
+    not?: NestedEnumOrderChannelFilter<$PrismaModel> | $Enums.OrderChannel
+  }
+
+  export type NestedEnumOrderChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderChannel | EnumOrderChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderChannel[]
+    notIn?: $Enums.OrderChannel[]
+    not?: NestedEnumOrderChannelWithAggregatesFilter<$PrismaModel> | $Enums.OrderChannel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderChannelFilter<$PrismaModel>
+    _max?: NestedEnumOrderChannelFilter<$PrismaModel>
+  }
+
+  export type NestedEnumBusinessProfileFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusinessProfile | EnumBusinessProfileFieldRefInput<$PrismaModel>
+    in?: $Enums.BusinessProfile[]
+    notIn?: $Enums.BusinessProfile[]
+    not?: NestedEnumBusinessProfileFilter<$PrismaModel> | $Enums.BusinessProfile
+  }
+
+  export type NestedEnumBusinessProfileWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BusinessProfile | EnumBusinessProfileFieldRefInput<$PrismaModel>
+    in?: $Enums.BusinessProfile[]
+    notIn?: $Enums.BusinessProfile[]
+    not?: NestedEnumBusinessProfileWithAggregatesFilter<$PrismaModel> | $Enums.BusinessProfile
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBusinessProfileFilter<$PrismaModel>
+    _max?: NestedEnumBusinessProfileFilter<$PrismaModel>
   }
 
   export type CategoryCreateWithoutProductsInput = {
@@ -16348,6 +16528,7 @@ export namespace Prisma {
   export type OrderCreateWithoutItemsInput = {
     id?: string
     orderNumber: number
+    channel?: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -16359,6 +16540,7 @@ export namespace Prisma {
   export type OrderUncheckedCreateWithoutItemsInput = {
     id?: string
     orderNumber: number
+    channel?: $Enums.OrderChannel
     subtotal: number
     discount: number
     fees: number
@@ -16444,6 +16626,7 @@ export namespace Prisma {
   export type OrderUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number
@@ -16455,6 +16638,7 @@ export namespace Prisma {
   export type OrderUncheckedUpdateWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: IntFieldUpdateOperationsInput | number
+    channel?: EnumOrderChannelFieldUpdateOperationsInput | $Enums.OrderChannel
     subtotal?: IntFieldUpdateOperationsInput | number
     discount?: IntFieldUpdateOperationsInput | number
     fees?: IntFieldUpdateOperationsInput | number

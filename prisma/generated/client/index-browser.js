@@ -173,6 +173,7 @@ exports.Prisma.VariationChoiceScalarFieldEnum = {
 exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
   orderNumber: 'orderNumber',
+  channel: 'channel',
   subtotal: 'subtotal',
   discount: 'discount',
   fees: 'fees',
@@ -202,7 +203,8 @@ exports.Prisma.OrderItemVariationScalarFieldEnum = {
 
 exports.Prisma.StoreSettingsScalarFieldEnum = {
   id: 'id',
-  storeName: 'storeName'
+  storeName: 'storeName',
+  businessProfile: 'businessProfile'
 };
 
 exports.Prisma.SortOrder = {
@@ -214,7 +216,18 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.OrderChannel = exports.$Enums.OrderChannel = {
+  DINE_IN: 'DINE_IN',
+  TAKEOUT: 'TAKEOUT',
+  DELIVERY: 'DELIVERY',
+  COLLECTION: 'COLLECTION'
+};
 
+exports.BusinessProfile = exports.$Enums.BusinessProfile = {
+  RESTAURANT: 'RESTAURANT',
+  MART: 'MART',
+  PHARMACY: 'PHARMACY'
+};
 
 exports.Prisma.ModelName = {
   Product: 'Product',

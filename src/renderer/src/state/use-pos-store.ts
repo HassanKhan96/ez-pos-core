@@ -240,6 +240,7 @@ export const usePosStore = create<StoreState>((set, get) => ({
       return;
     }
     const payload = {
+      channel: "TAKEOUT" as const,
       items: state.cart.map((line) => ({
         productId: line.productId,
         quantity: line.quantity,

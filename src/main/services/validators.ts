@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const orderChannelSchema = z.enum(["DINE_IN", "TAKEOUT", "DELIVERY", "COLLECTION"]);
+
 export const productInputSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1),
@@ -38,6 +40,7 @@ export const productInputSchema = z.object({
 });
 
 export const placeOrderSchema = z.object({
+  channel: orderChannelSchema,
   items: z
     .array(
       z.object({
@@ -59,4 +62,8 @@ export const placeOrderSchema = z.object({
     taxRatePercent: z.number().nonnegative(),
     discountAmount: z.number().int().nonnegative()
   })
+});
+
+export const storeSettingsUpdateSchema = z.object({
+  storeName: z.string().min(1)
 });

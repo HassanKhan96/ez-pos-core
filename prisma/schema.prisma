@@ -8,6 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BusinessProfile {
+  RESTAURANT
+  MART
+  PHARMACY
+}
+
+enum OrderChannel {
+  DINE_IN
+  TAKEOUT
+  DELIVERY
+  COLLECTION
+}
+
 model Product {
   id              String           @id @default(uuid())
   name            String
@@ -76,6 +89,7 @@ model VariationChoice {
 model Order {
   id          String      @id @default(uuid())
   orderNumber Int         @unique
+  channel     OrderChannel @default(TAKEOUT)
   subtotal    Int
   discount    Int
   fees        Int
@@ -111,6 +125,7 @@ model OrderItemVariation {
 }
 
 model StoreSettings {
-  id        Int    @id
-  storeName String
+  id              Int             @id
+  storeName       String
+  businessProfile BusinessProfile @default(MART)
 }

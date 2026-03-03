@@ -1,12 +1,14 @@
 import type { OrderListItem, OrderReceiptDTO, PlaceOrderInput } from "../../shared/contracts";
 import { prisma } from "../db/prisma";
 import { calculateTotals } from "./pricing";
+import { ensurePhase1SchemaCompat } from "./schema-compat";
 import { getSettings } from "./settings-service";
 import { placeOrderSchema } from "./validators";
 
 function toOrderListItem(row: {
   id: string;
   orderNumber: number;
+  channel: "DINE_IN" | "TAKEOUT" | "DELIVERY" | "COLLECTION";
   subtotal: number;
   discount: number;
   fees: number;
@@ -21,6 +23,7 @@ function toOrderListItem(row: {
 }
 
 export async function placeOrder(rawInput: PlaceOrderInput): Promise<OrderListItem> {
+  await ensurePhase1SchemaCompat();
   const input = placeOrderSchema.parse(rawInput);
 
   const result = await prisma.$transaction(async (tx) => {
@@ -115,6 +118,7 @@ export async function placeOrder(rawInput: PlaceOrderInput): Promise<OrderListIt
     const order = await tx.order.create({
       data: {
         orderNumber,
+        channel: input.channel,
         subtotal: totals.subtotal,
         discount: totals.discount,
         fees: totals.fees,
@@ -153,6 +157,7 @@ export async function placeOrder(rawInput: PlaceOrderInput): Promise<OrderListIt
 }
 
 export async function listOrders(fromISO: string, toISO: string): Promise<OrderListItem[]> {
+  await ensurePhase1SchemaCompat();
   const rows = await prisma.order.findMany({
     where: {
       createdAt: {
@@ -166,6 +171,7 @@ export async function listOrders(fromISO: string, toISO: string): Promise<OrderL
 }
 
 export async function getOrderReceipt(orderId: string): Promise<OrderReceiptDTO> {
+  await ensurePhase1SchemaCompat();
   const [order, settings] = await Promise.all([
     prisma.order.findUnique({
       where: { id: orderId },
@@ -185,6 +191,7 @@ export async function getOrderReceipt(orderId: string): Promise<OrderReceiptDTO>
   return {
     orderId: order.id,
     orderNumber: order.orderNumber,
+    channel: order.channel,
     createdAt: order.createdAt.toISOString(),
     storeName: settings.storeName,
     subtotal: order.subtotal,
