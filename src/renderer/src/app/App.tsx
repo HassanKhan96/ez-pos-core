@@ -24,34 +24,36 @@ export function App() {
   }, [loadBootstrap]);
 
   return (
-    <Layout style={{ height: "100vh", overflow: "hidden" }}>
-      <Sidebar active={activeScreen} onChange={setActiveScreen} />
-      <Layout.Content style={{ padding: 14, minWidth: 0 }}>
-        <section className="app-content-single">
-          {loading && (
-            <div style={{ display: "grid", placeItems: "center", padding: 40 }}>
-              <Spin size="large" />
-            </div>
-          )}
+    <div className="app-scale-wrap">
+      <Layout className="app-scale-content">
+        <Sidebar active={activeScreen} onChange={setActiveScreen} />
+        <Layout.Content style={{ padding: 14, minWidth: 0, height: "100%" }}>
+          <section className="app-content-single">
+            {loading && (
+              <div style={{ display: "grid", placeItems: "center", padding: 40 }}>
+                <Spin size="large" />
+              </div>
+            )}
 
-          {error && (
-            <Alert
-              style={{ marginBottom: 12 }}
-              type="error"
-              showIcon
-              message="Something went wrong"
-              description={error}
-            />
-          )}
+            {error && (
+              <Alert
+                style={{ marginBottom: 12 }}
+                type="error"
+                showIcon
+                message="Something went wrong"
+                description={error}
+              />
+            )}
 
-          {activeScreen === "order" && <OrderScreen />}
-          {activeScreen === "inventory" && <InventoryScreen />}
-          {activeScreen === "history" && <OrderHistoryScreen />}
-          {activeScreen === "reports" && <SalesReportScreen />}
-          {activeScreen === "settings" && <SettingsScreen />}
-        </section>
-      </Layout.Content>
-      {notice && <SuccessModal message={notice} onClose={clearNotice} />}
-    </Layout>
+            {activeScreen === "order" && <OrderScreen />}
+            {activeScreen === "inventory" && <InventoryScreen />}
+            {activeScreen === "history" && <OrderHistoryScreen />}
+            {activeScreen === "reports" && <SalesReportScreen />}
+            {activeScreen === "settings" && <SettingsScreen />}
+          </section>
+        </Layout.Content>
+        {notice && <SuccessModal message={notice} onClose={clearNotice} />}
+      </Layout>
+    </div>
   );
 }

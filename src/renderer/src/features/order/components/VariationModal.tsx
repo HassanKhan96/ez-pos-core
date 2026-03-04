@@ -1,11 +1,21 @@
 import type { ProductListItem } from "@shared/contracts";
 import { useMemo, useState } from "react";
-import { Button, Checkbox, Divider, Modal, Radio, Space, Tag, Typography } from "antd";
+import { Button, Checkbox, Divider, Modal, Radio, Space, Tag, Typography, message } from "antd";
 import { formatMoney } from "@/lib/format";
+import {
+  computeUnitPriceFromSelection,
+  pickLeastRequiredChoiceIds,
+  pickLeastSizeId
+} from "@/lib/product-pricing";
 
 type Props = {
   product: ProductListItem;
   onClose: () => void;
+  confirmLabel?: string;
+  initialSelection?: {
+    sizeId?: string;
+    selectedVariations?: Array<{ groupId: string; choiceIds: string[] }>;
+  };
   onConfirm: (payload: {
     sizeId?: string;
     sizeName?: string;
@@ -13,22 +23,37 @@ type Props = {
   }) => void;
 };
 
-export function VariationModal({ product, onClose, onConfirm }: Props) {
-  const [sizeId, setSizeId] = useState<string | undefined>(product.sizes[0]?.id);
-  const [selected, setSelected] = useState<Record<string, string[]>>({});
+function buildInitialSelected(
+  product: ProductListItem,
+  initialSelection?: Props["initialSelection"]
+): Record<string, string[]> {
+  if (initialSelection?.selectedVariations) {
+    return Object.fromEntries(
+      initialSelection.selectedVariations.map((variation) => [variation.groupId, variation.choiceIds])
+    );
+  }
+  if (product.basePrice !== 0) {
+    return {};
+  }
+  return Object.fromEntries(
+    product.variationGroups.map((group) => [group.id ?? "", pickLeastRequiredChoiceIds(group)])
+  );
+}
+
+export function VariationModal({ product, onClose, onConfirm, confirmLabel = "Add to cart", initialSelection }: Props) {
+  const [sizeId, setSizeId] = useState<string | undefined>(() => {
+    if (initialSelection?.sizeId) return initialSelection.sizeId;
+    if (product.basePrice === 0) return pickLeastSizeId(product);
+    return product.sizes[0]?.id;
+  });
+  const [selected, setSelected] = useState<Record<string, string[]>>(() => buildInitialSelected(product, initialSelection));
 
   const totalPreview = useMemo(() => {
-    let unit = product.basePrice;
-    if (sizeId) {
-      const size = product.sizes.find((s) => s.id === sizeId);
-      unit += size?.priceDelta ?? 0;
-    }
-    for (const group of product.variationGroups) {
-      for (const choiceId of selected[group.id ?? ""] ?? []) {
-        unit += group.choices.find((c) => c.id === choiceId)?.priceDelta ?? 0;
-      }
-    }
-    return unit;
+    const selectedVariations = product.variationGroups.map((group) => ({
+      groupId: group.id ?? "",
+      choiceIds: selected[group.id ?? ""] ?? []
+    }));
+    return computeUnitPriceFromSelection(product, { sizeId, selectedVariations });
   }, [product, selected, sizeId]);
 
   return (
@@ -108,6 +133,14 @@ export function VariationModal({ product, onClose, onConfirm }: Props) {
             <Button
               type="primary"
               onClick={() => {
+                const isInvalidGroup = product.variationGroups.find((group) => {
+                  const selectedCount = (selected[group.id ?? ""] ?? []).length;
+                  return selectedCount < group.minSelectable || selectedCount > group.maxSelectable;
+                });
+                if (isInvalidGroup) {
+                  void message.error(`Please update selection for ${isInvalidGroup.name}`);
+                  return;
+                }
                 const selections = product.variationGroups.map((group) => {
                   const ids = selected[group.id ?? ""] ?? [];
                   const labels = ids
@@ -122,7 +155,7 @@ export function VariationModal({ product, onClose, onConfirm }: Props) {
                 });
               }}
             >
-              Add to cart
+              {confirmLabel}
             </Button>
           </Space>
         </div>

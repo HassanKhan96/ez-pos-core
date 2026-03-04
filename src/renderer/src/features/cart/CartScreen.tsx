@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ProductListItem } from "@shared/contracts";
 import {
+  DownOutlined,
   DeleteOutlined,
   EditOutlined,
   MinusOutlined,
@@ -14,12 +16,13 @@ import {
   Empty,
   InputNumber,
   Modal,
-  Popover,
   Space,
   Typography
 } from "antd";
 import { ScreenPanel } from "@/components/ui/ScreenPanel";
 import { formatMoney } from "@/lib/format";
+import { computeUnitPriceFromSelection } from "@/lib/product-pricing";
+import { VariationModal } from "@/features/order/components/VariationModal";
 import { usePosStore } from "@/state/use-pos-store";
 
 export function CartScreen() {
@@ -29,37 +32,29 @@ export function CartScreen() {
   const setCharge = usePosStore((state) => state.setCharge);
   const removeFromCart = usePosStore((state) => state.removeFromCart);
   const changeQty = usePosStore((state) => state.changeQty);
+  const updateCartLineSelection = usePosStore((state) => state.updateCartLineSelection);
   const placeOrder = usePosStore((state) => state.placeOrder);
 
   const [openCharges, setOpenCharges] = useState(false);
-  const [lineActionKey, setLineActionKey] = useState<string | null>(null);
+  const [expandedLineKey, setExpandedLineKey] = useState<string | null>(null);
+  const [editingSelectionKey, setEditingSelectionKey] = useState<string | null>(null);
   const [editingLineKey, setEditingLineKey] = useState<string | null>(null);
   const [editingQty, setEditingQty] = useState<number>(1);
-  const [noteLineKey, setNoteLineKey] = useState<string | null>(null);
-  const [noteInput, setNoteInput] = useState("");
-  const [notesByLine, setNotesByLine] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    setNotesByLine((current) => {
-      const validKeys = new Set(cart.map((line) => line.key));
-      return Object.fromEntries(Object.entries(current).filter(([key]) => validKeys.has(key)));
-    });
-  }, [cart]);
+    if (expandedLineKey && !cart.some((line) => line.key === expandedLineKey)) {
+      setExpandedLineKey(null);
+    }
+  }, [cart, expandedLineKey]);
 
   const summary = useMemo(() => {
     const subtotal = cart.reduce((sum, line) => {
       const product = products.find((item) => item.id === line.productId);
       if (!product) return sum;
-      let unit = product.basePrice;
-      if (line.sizeId) {
-        unit += product.sizes.find((size) => size.id === line.sizeId)?.priceDelta ?? 0;
-      }
-      for (const selected of line.selectedVariations) {
-        const group = product.variationGroups.find((variationGroup) => variationGroup.id === selected.groupId);
-        for (const choiceId of selected.choiceIds) {
-          unit += group?.choices.find((choice) => choice.id === choiceId)?.priceDelta ?? 0;
-        }
-      }
+      const unit = computeUnitPriceFromSelection(product, {
+        sizeId: line.sizeId,
+        selectedVariations: line.selectedVariations
+      });
       return sum + unit * line.quantity;
     }, 0);
 
@@ -77,13 +72,12 @@ export function CartScreen() {
       title="Cart"
       subtitle="Compact checkout controls"
       className="screen-panel cart-panel"
-    >
-      <div className="cart-toolbar">
+      extra={
         <Button icon={<SnippetsOutlined />} onClick={() => setOpenCharges(true)}>
           Charges
         </Button>
-      </div>
-
+      }
+    >
       <div className="cart-root">
         {cart.length === 0 ? (
           <div className="cart-empty">
@@ -93,71 +87,21 @@ export function CartScreen() {
           <div className="cart-list">
             {cart.map((line) => (
               <div key={line.key} className="cart-line-item">
-                <div style={{ width: "100%" }}>
-                  <div className="cart-line-top">
-                    <Space orientation="vertical" size={1} style={{ minWidth: 0 }}>
-                      <Typography.Text strong ellipsis>
-                        {line.productName}
-                      </Typography.Text>
-                      {(line.sizeName || line.selectedVariations.some((variation) => variation.labels.length > 0)) && (
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                          {[line.sizeName, ...line.selectedVariations.flatMap((variation) => variation.labels)]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </Typography.Text>
-                      )}
-                      {notesByLine[line.key] && (
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                          Note: {notesByLine[line.key]}
-                        </Typography.Text>
-                      )}
-                    </Space>
+                <button
+                  type="button"
+                  className="cart-line-header"
+                  onClick={() => setExpandedLineKey((current) => (current === line.key ? null : line.key))}
+                >
+                  <Typography.Text strong ellipsis>
+                    {line.quantity} x {line.productName}
+                  </Typography.Text>
+                  <Space size={8} align="center">
+                    <Typography.Text strong>{formatMoney(resolveLineTotal(line, products))}</Typography.Text>
+                    <DownOutlined className={expandedLineKey === line.key ? "cart-chevron expanded" : "cart-chevron"} />
+                  </Space>
+                </button>
 
-                    <Popover
-                      trigger="click"
-                      open={lineActionKey === line.key}
-                      onOpenChange={(open) => setLineActionKey(open ? line.key : null)}
-                      content={
-                        <Space orientation="vertical" size={4}>
-                          <Button
-                            type="text"
-                            icon={<EditOutlined />}
-                            onClick={() => {
-                              setLineActionKey(null);
-                              setEditingLineKey(line.key);
-                              setEditingQty(line.quantity);
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            type="text"
-                            onClick={() => {
-                              setLineActionKey(null);
-                              setNoteLineKey(line.key);
-                              setNoteInput(notesByLine[line.key] ?? "");
-                            }}
-                          >
-                            Add note
-                          </Button>
-                          <Button
-                            danger
-                            type="text"
-                            icon={<DeleteOutlined />}
-                            onClick={() => {
-                              setLineActionKey(null);
-                              removeFromCart(line.key);
-                            }}
-                          >
-                            Remove
-                          </Button>
-                        </Space>
-                      }
-                    >
-                      <Button size="small" type="text" danger icon={<DeleteOutlined />} />
-                    </Popover>
-                  </div>
-
+                {expandedLineKey === line.key && (
                   <div className="cart-line-actions">
                     <Space.Compact>
                       <Button icon={<MinusOutlined />} onClick={() => changeQty(line.key, -1)} />
@@ -166,8 +110,30 @@ export function CartScreen() {
                       </Button>
                       <Button icon={<PlusOutlined />} onClick={() => changeQty(line.key, 1)} />
                     </Space.Compact>
+                    <Space size={6}>
+                      <Button
+                        aria-label="Edit item"
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                          const product = products.find((item) => item.id === line.productId);
+                          const hasConfig = Boolean(product && (product.sizes.length > 0 || product.variationGroups.length > 0));
+                          if (hasConfig) {
+                            setEditingSelectionKey(line.key);
+                            return;
+                          }
+                          setEditingLineKey(line.key);
+                          setEditingQty(line.quantity);
+                        }}
+                      />
+                      <Button
+                        aria-label="Delete item"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => removeFromCart(line.key)}
+                      />
+                    </Space>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
@@ -246,37 +212,56 @@ export function CartScreen() {
         />
       </Modal>
 
-      <Modal
-        open={Boolean(noteLineKey)}
-        title="Add note"
-        onCancel={() => setNoteLineKey(null)}
-        onOk={() => {
-          if (!noteLineKey) {
-            return;
-          }
-          const next = noteInput.trim();
-          setNotesByLine((current) => {
-            if (!next) {
-              const { [noteLineKey]: _omit, ...rest } = current;
-              return rest;
-            }
-            return { ...current, [noteLineKey]: next };
-          });
-          setNoteLineKey(null);
-          setNoteInput("");
-        }}
-        okText="Save"
-      >
-        <textarea
-          value={noteInput}
-          onChange={(event) => setNoteInput(event.target.value)}
-          rows={3}
-          className="cart-note-input"
-          placeholder="Add prep or instruction note"
-        />
-      </Modal>
+      {editingSelectionKey && (() => {
+        const line = cart.find((item) => item.key === editingSelectionKey);
+        const product = products.find((item) => item.id === line?.productId);
+        if (!line || !product) {
+          return null;
+        }
+        return (
+          <VariationModal
+            product={product}
+            confirmLabel="Apply changes"
+            initialSelection={{
+              sizeId: line.sizeId,
+              selectedVariations: line.selectedVariations.map((variation) => ({
+                groupId: variation.groupId,
+                choiceIds: variation.choiceIds
+              }))
+            }}
+            onClose={() => setEditingSelectionKey(null)}
+            onConfirm={({ sizeId, sizeName, selectedVariations }) => {
+              updateCartLineSelection(line.key, {
+                sizeId,
+                sizeName,
+                selectedVariations
+              });
+              setEditingSelectionKey(null);
+            }}
+          />
+        );
+      })()}
+
     </ScreenPanel>
   );
+}
+
+function resolveLineTotal(
+  line: {
+    productId: string;
+    quantity: number;
+    sizeId?: string;
+    selectedVariations: Array<{ groupId: string; choiceIds: string[] }>;
+  },
+  products: ProductListItem[]
+): number {
+  const product = products.find((item) => item.id === line.productId);
+  if (!product) return 0;
+
+  return computeUnitPriceFromSelection(product, {
+    sizeId: line.sizeId,
+    selectedVariations: line.selectedVariations
+  }) * line.quantity;
 }
 
 function ChargeInput({

@@ -18,7 +18,6 @@ import {
   Tag,
   Typography
 } from "antd";
-import { businessProfileLabel, orderChannelLabel } from "@shared/profile";
 import {
   connectBluetoothPrinter,
   disconnectBluetoothPrinter,
@@ -29,12 +28,6 @@ import {
 import { usePosStore } from "@/state/use-pos-store";
 
 type Mode = "system" | "classic" | "bluetooth";
-const capabilityKeyByChannel = {
-  DINE_IN: "ORDER_CHANNEL_DINE_IN",
-  TAKEOUT: "ORDER_CHANNEL_TAKEOUT",
-  DELIVERY: "ORDER_CHANNEL_DELIVERY",
-  COLLECTION: "ORDER_CHANNEL_COLLECTION"
-} as const;
 
 export function SettingsScreen() {
   const settings = usePosStore((state) => state.settings);
@@ -97,22 +90,6 @@ export function SettingsScreen() {
           <Button type="primary" onClick={() => void saveStoreName(storeName)}>
             Save Store Name
           </Button>
-          <Divider style={{ margin: "6px 0" }} />
-          <Typography.Text type="secondary">Business profile is deployment controlled (read-only).</Typography.Text>
-          <Tag color="blue">{businessProfileLabel(settings?.businessProfile ?? "MART")}</Tag>
-          <Space wrap size={[6, 6]}>
-            {settings &&
-              ([
-                "DINE_IN",
-                "TAKEOUT",
-                "DELIVERY",
-                "COLLECTION"
-              ] as const).map((channel) => (
-                <Tag key={channel} color={settings.capabilities[capabilityKeyByChannel[channel]] ? "green" : "default"}>
-                  {orderChannelLabel(channel)}
-                </Tag>
-              ))}
-          </Space>
         </Space>
       </Card>
 

@@ -73,6 +73,10 @@ type StoreState = {
   upsertProduct: (input: ProductInput) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   addToCart: (line: Omit<CartLine, "key" | "quantity">) => void;
+  updateCartLineSelection: (
+    key: string,
+    selection: Pick<CartLine, "sizeId" | "sizeName" | "selectedVariations">
+  ) => void;
   changeQty: (key: string, delta: number) => void;
   removeFromCart: (key: string) => void;
   clearCart: () => void;
@@ -206,6 +210,44 @@ export const usePosStore = create<StoreState>((set, get) => ({
       return {
         cart: [...state.cart, { ...line, key, quantity: 1 }],
       };
+    }),
+
+  updateCartLineSelection: (key, selection) =>
+    set((state) => {
+      const lineIndex = state.cart.findIndex((line) => line.key === key);
+      if (lineIndex < 0) {
+        return {};
+      }
+
+      const current = state.cart[lineIndex];
+      const nextCore = {
+        productId: current.productId,
+        productName: current.productName,
+        sizeId: selection.sizeId,
+        sizeName: selection.sizeName,
+        selectedVariations: selection.selectedVariations
+      };
+      const nextKey = lineKey(nextCore);
+      const updatedLine: CartLine = {
+        ...current,
+        ...nextCore,
+        key: nextKey
+      };
+
+      const sameLineIndex = state.cart.findIndex((line, index) => index !== lineIndex && line.key === nextKey);
+      if (sameLineIndex >= 0) {
+        const merged = [...state.cart];
+        merged[sameLineIndex] = {
+          ...merged[sameLineIndex],
+          quantity: merged[sameLineIndex].quantity + current.quantity
+        };
+        merged.splice(lineIndex, 1);
+        return { cart: merged };
+      }
+
+      const updated = [...state.cart];
+      updated[lineIndex] = updatedLine;
+      return { cart: updated };
     }),
 
   changeQty: (key, delta) =>

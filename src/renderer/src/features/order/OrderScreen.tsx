@@ -5,6 +5,7 @@ import { Input, Menu, Typography } from "antd";
 import type { MenuProps } from "antd";
 import { ScreenPanel } from "@/components/ui/ScreenPanel";
 import { formatMoney } from "@/lib/format";
+import { computeDisplayBasePrice } from "@/lib/product-pricing";
 import { CartScreen } from "@/features/cart/CartScreen";
 import { usePosStore } from "@/state/use-pos-store";
 import { VariationModal } from "./components/VariationModal";
@@ -94,10 +95,10 @@ export function OrderScreen() {
                     }}
                   >
                     <div className="product-card-top">
-                      <Typography.Text strong ellipsis>
+                      <Typography.Text strong className="product-card-name">
                         {product.name}
                       </Typography.Text>
-                      <Typography.Text className="price-pill">{formatMoney(product.basePrice)}</Typography.Text>
+                      <Typography.Text className="price-pill">{formatMoney(computeDisplayBasePrice(product))}</Typography.Text>
                     </div>
                   </button>
                 );

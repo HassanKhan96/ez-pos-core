@@ -6,6 +6,7 @@ import { disconnectNativePort } from "./services/printer-service";
 const isDev = !app.isPackaged;
 app.commandLine.appendSwitch("enable-experimental-web-platform-features");
 app.commandLine.appendSwitch("enable-features", "WebBluetoothNewPermissionsBackend");
+app.commandLine.appendSwitch("disable-pinch");
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -18,6 +19,17 @@ function createWindow(): void {
       preload: path.join(__dirname, "../preload/preload.js"),
       contextIsolation: true,
       nodeIntegration: false
+    }
+  });
+
+  mainWindow.webContents.setZoomFactor(1);
+  void mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
+  mainWindow.webContents.on("before-input-event", (event, input) => {
+    const commandPressed = input.control || input.meta;
+    if (!commandPressed) return;
+    const key = input.key;
+    if (key === "+" || key === "-" || key === "=" || key === "0") {
+      event.preventDefault();
     }
   });
 
